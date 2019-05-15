@@ -1,4 +1,3 @@
-# Miejsce eksperymentów IT
-powiązane z www.akademiadatacenter.pl i vSebastian.net
+# Pole minowe terraforma i providera Sphere
 
-## VMware , Terraform itp :)
+Tworzę i niszczę, tworzę i niszczę i tak w kółko :)
