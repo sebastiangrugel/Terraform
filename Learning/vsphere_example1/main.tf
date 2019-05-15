@@ -2,12 +2,12 @@
 provider "vsphere" {
   user                 = "${var.vc_user}"
   password             = "${var.vc_pass}"
-  vsphere_server = "${var.vc_vsphere_server}"
+  vsphere_server       = "${var.vc_vsphere_server}"
   allow_unverified_ssl = "${var.vc_allow_unverified_ssl}"
-  }
-
+}
 
 //Deklarujemy informacje o hostach w vCenter czesc 1
+
 variable "hosts" {
   default = [
     "sg-esxi01.exea.dev",
@@ -16,6 +16,7 @@ variable "hosts" {
   ]
 }
 
+/*
 //Zaciągamy informacje o hostach w vCenter czesc 2
 data "vsphere_host" "hosts" {
   count         = "${length(var.hosts)}"
@@ -23,37 +24,35 @@ data "vsphere_host" "hosts" {
   datacenter_id = "${data.vsphere_datacenter.old_datacenter.id}"
   depends_on = ["vsphere_datacenter.vmug_datacenter"]
 }
-
+*/
 
 // Tworzenie datacenter dla VMUG // Creating datacenter for VMUG
 resource "vsphere_datacenter" "vmug_datacenter" {
-  name       = "TerraformDC-VMUG-EXEA"
+  name = "TerraformDC-VMUG-EXEA"
 }
-
 
 data "vsphere_datacenter" "old_datacenter" {
   name = "ExistingDC"
 }
 
-
-/*
 data "vsphere_host" "host1" {
   name          = "sg-esxi01.exea.dev"
   datacenter_id = "${data.vsphere_datacenter.old_datacenter.id}"
 }
-*/
 
-
+/*
 
 // Tworzenie Clastra // Host Cluster creation
 resource "vsphere_compute_cluster" "compute_cluster" {
   name            = "TerraformCluster-VMUG"
   // użyłem poniżej moid zamiast id bo inaczej wyrzucał bład 
   datacenter_id   = "${vsphere_datacenter.vmug_datacenter.moid}"
-  host_system_ids = ["${data.vsphere_host.hosts.*.id}"]
+  //host_system_ids = ["${data.vsphere_host.hosts.*.id}"]
+  host_system_ids = ["${data.vsphere_host.host1.id}"]
   depends_on = ["vsphere_datacenter.vmug_datacenter"]
 }
 
+*/
 
 
 /*
@@ -126,3 +125,4 @@ count = 5
 
 
 */
+
