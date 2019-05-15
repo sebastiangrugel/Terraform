@@ -11,14 +11,11 @@ resource "vsphere_datacenter" "vmug_datacenter" {
   name       = "TerraformDC-VMUG"
 }
 
-data "vsphere_datacenter" "dc" {
-  name = "${var.vsphere_datacenter.vmug_datacenter}"
-}
 
 
 // Tworzenie Clastra // Host Cluster creation
 resource "vsphere_compute_cluster" "compute_cluster" {
   name            = "terraform-compute-cluster-test"
-  datacenter_id   = "${data.vsphere_datacenter.dc.id}"
+  datacenter_id   = "${vsphere_datacenter.vmug_datacenter.moid}"
   depends_on = ["vsphere_datacenter.vmug_datacenter"]
 }
