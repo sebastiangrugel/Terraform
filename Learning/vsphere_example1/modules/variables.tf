@@ -14,3 +14,7 @@ variable "environment" {
   
 }
 
+variable "network_interfaces" {
+  default = []
+  type = "list"
+}
