@@ -1,15 +1,16 @@
-
+// Pobranie informacji o istniejących hostach
 data "vsphere_host" "hosts" {
   count         = "${length(var.hosts)}"
   name          = "${var.hosts[count.index]}"
   datacenter_id = "${data.vsphere_datacenter.old_datacenter.id}"
   }
 
+// Pobranie informacji o istniejącym klastrze
 data "vsphere_datacenter" "old_datacenter" {
   name = "EXEA-DC-${var.environment}"
   }
 
-
+// Tworzenie klastra hostów
 resource "vsphere_compute_cluster" "compute_cluster" {
   name            = "TerraformCluster-VMUG_${var.environment}"
    datacenter_id   = "${data.vsphere_datacenter.old_datacenter.id}"
@@ -20,35 +21,61 @@ resource "vsphere_compute_cluster" "compute_cluster" {
   force_evacuate_on_destroy = true
 }
 
-
+// Tworzenie DVS
 resource "vsphere_distributed_virtual_switch" "dvs" {
-  name          = "terraform-test-dvs"
+  name          = "VDS-EXEA-MGMT"
   datacenter_id = "${data.vsphere_datacenter.old_datacenter.id}"
-
   uplinks         = ["uplink1"]
-  //active_uplinks  = ["uplink1"]
-  //standby_uplinks = ["uplink3", "uplink4"]
-
+  
   host {
    
    host_system_id = "${data.vsphere_host.hosts.0.id}"
-    devices        = ["${var.network_interfaces}"]
+  devices        = ["${var.network_interfaces}"]
   }
 
   host {
     host_system_id = "${data.vsphere_host.hosts.1.id}"
     devices        = ["${var.network_interfaces}"]
   }
+}
 
-  host {
-    host_system_id = "${data.vsphere_host.hosts.2.id}"
-    devices        = ["${var.network_interfaces}"]
-  }
-
-  
+resource "vsphere_distributed_virtual_switch" "dvs_nsx" {
+  name          = "VDS-EXEA-NSX"
+  datacenter_id = "${data.vsphere_datacenter.old_datacenter.id}"
 }
 
 
+
+
+
+// Tworzenie portgrup na VDS
+
+ resource "vsphere_distributed_port_group" "pg_mgmt" {
+  name = "PG-EXEA-MGT"
+  distributed_virtual_switch_uuid = "${vsphere_distributed_virtual_switch.dvs.id}"
+  vlan_id = 1001
+  }
+ resource "vsphere_distributed_port_group" "pg_backup" {
+  name = "PG-EXEA-BACKUP"
+  distributed_virtual_switch_uuid = "${vsphere_distributed_virtual_switch.dvs.id}"
+  vlan_id = 1002
+    
+}
+resource "vsphere_distributed_port_group" "pg_repl" {
+  name = "PG-EXEA-REPLICATION"
+  distributed_virtual_switch_uuid = "${vsphere_distributed_virtual_switch.dvs.id}"
+  vlan_id = 1003
+}
+resource "vsphere_distributed_port_group" "pg_vmotion" {
+  name = "PG-EXEA-VMOTION"
+  distributed_virtual_switch_uuid = "${vsphere_distributed_virtual_switch.dvs.id}"
+  vlan_id = 1004
+}
+resource "vsphere_distributed_port_group" "pg_vsan" {
+  name = "PG-EXEA-VSAN"
+  distributed_virtual_switch_uuid = "${vsphere_distributed_virtual_switch.dvs.id}"
+  vlan_id = 1005
+}
 
 
 
