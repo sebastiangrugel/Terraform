@@ -12,7 +12,7 @@ data "vsphere_datacenter" "old_datacenter" {
 
 // Tworzenie klastra hostów
 resource "vsphere_compute_cluster" "compute_cluster" {
-  name            = "TerraformCluster-VMUG_${var.environment}"
+  name            = "Terraform${var.company}_Cluster-VMUG_${var.environment}"
    datacenter_id   = "${data.vsphere_datacenter.old_datacenter.id}"
   host_system_ids = ["${data.vsphere_host.hosts.*.id}"]
   drs_enabled          = true
@@ -23,7 +23,7 @@ resource "vsphere_compute_cluster" "compute_cluster" {
 
 // Tworzenie DVS
 resource "vsphere_distributed_virtual_switch" "dvs" {
-  name          = "VDS-EXEA-MGMT"
+  name          = "VDS-${var.company}-MGMT"
   datacenter_id = "${data.vsphere_datacenter.old_datacenter.id}"
   uplinks         = ["uplink1"]
   
@@ -40,7 +40,7 @@ resource "vsphere_distributed_virtual_switch" "dvs" {
 }
 
 resource "vsphere_distributed_virtual_switch" "dvs_nsx" {
-  name          = "VDS-EXEA-NSX"
+  name          = "VDS-${var.company}-NSX"
   datacenter_id = "${data.vsphere_datacenter.old_datacenter.id}"
 }
 
@@ -51,28 +51,28 @@ resource "vsphere_distributed_virtual_switch" "dvs_nsx" {
 // Tworzenie portgrup na VDS
 
  resource "vsphere_distributed_port_group" "pg_mgmt" {
-  name = "PG-EXEA-MGT"
+  name = "PG-${var.company}-MGT"
   distributed_virtual_switch_uuid = "${vsphere_distributed_virtual_switch.dvs.id}"
   vlan_id = 1001
   }
  resource "vsphere_distributed_port_group" "pg_backup" {
-  name = "PG-EXEA-BACKUP"
+  name = "PG-${var.company}-BACKUP"
   distributed_virtual_switch_uuid = "${vsphere_distributed_virtual_switch.dvs.id}"
   vlan_id = 1002
     
 }
 resource "vsphere_distributed_port_group" "pg_repl" {
-  name = "PG-EXEA-REPLICATION"
+  name = "PG-${var.company}-REPLICATION"
   distributed_virtual_switch_uuid = "${vsphere_distributed_virtual_switch.dvs.id}"
   vlan_id = 1003
 }
 resource "vsphere_distributed_port_group" "pg_vmotion" {
-  name = "PG-EXEA-VMOTION"
+  name = "PG-${var.company}-VMOTION"
   distributed_virtual_switch_uuid = "${vsphere_distributed_virtual_switch.dvs.id}"
   vlan_id = 1004
 }
 resource "vsphere_distributed_port_group" "pg_vsan" {
-  name = "PG-EXEA-VSAN"
+  name = "PG-${var.company}-VSAN"
   distributed_virtual_switch_uuid = "${vsphere_distributed_virtual_switch.dvs.id}"
   vlan_id = 1005
 }

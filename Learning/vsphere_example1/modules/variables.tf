@@ -18,3 +18,7 @@ variable "network_interfaces" {
   default = []
   type = "list"
 }
+
+variable "company" {
+  type = "string"
+}

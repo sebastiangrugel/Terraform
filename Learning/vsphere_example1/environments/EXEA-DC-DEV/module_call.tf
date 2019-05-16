@@ -3,4 +3,5 @@ module "dev_environment" {
     hosts = ["sg-esxi01.exea.dev","sg-esxi02.exea.dev"]
     environment = "DEV"
     network_interfaces = ["vmnic1"]
+    company = "EXEA"
 }
