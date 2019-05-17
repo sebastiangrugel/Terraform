@@ -17,3 +17,4 @@ variable "vc_max_retry_timeout" {
 variable "vc_vsphere_server" {
   description = "vCenter FQDN"
 }
+

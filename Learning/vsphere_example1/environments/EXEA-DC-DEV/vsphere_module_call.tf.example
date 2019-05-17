@@ -1,0 +1,8 @@
+module "dev_environment" {
+    source = "../../modules"
+    hosts = ["esxi03.yourdomain","esxi04.yourdomain"]
+    environment = "PROD"
+    network_interfaces = ["vmnic1"]
+    company = "YOURCOMPANY"
+    nfs_server_ip = ["NFSSERVERIP"]
+}
