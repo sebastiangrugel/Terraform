@@ -20,7 +20,7 @@ data "vsphere_vmfs_disks" "available1" {
 }
 
 resource "vsphere_vmfs_datastore" "datastore1" {
-  name           = "Datastore-${data.vsphere_host.hosts.0.name}_${var.environment}_Local"
+  name           = "Datastore-${data.vsphere_host.hosts.0.name}-${var.environment}-Local"
   host_system_id = "${data.vsphere_host.hosts.0.id}"
   disks = ["${data.vsphere_vmfs_disks.available1.disks}"]
   depends_on = ["vsphere_compute_cluster.compute_cluster"]
@@ -34,7 +34,7 @@ data "vsphere_vmfs_disks" "available2" {
 }
 
 resource "vsphere_vmfs_datastore" "datastore2" {
-  name           = "Datastore-${data.vsphere_host.hosts.1.name}_${var.environment}_Local"
+  name           = "Datastore-${data.vsphere_host.hosts.1.name}-${var.environment}-Local"
   host_system_id = "${data.vsphere_host.hosts.1.id}"
   disks = ["${data.vsphere_vmfs_disks.available2.disks}"]
   depends_on = ["vsphere_compute_cluster.compute_cluster"]
@@ -42,9 +42,9 @@ resource "vsphere_vmfs_datastore" "datastore2" {
 
 
 
-
+// Tworzenie wspołdzielonego datastora NFSv3
 resource "vsphere_nas_datastore" "nfsdatastore" {
-  name            = "terraform-testnfs"
+  name            = "Datastore-${var.environment}-NFS"
   host_system_ids = ["${data.vsphere_host.hosts.*.id}"]
   type         = "NFS"
   remote_hosts = ["${var.nfs_server_ip}"]
@@ -60,7 +60,7 @@ resource "vsphere_compute_cluster" "compute_cluster" {
   host_system_ids = ["${data.vsphere_host.hosts.*.id}"]
   drs_enabled          = true
   drs_automation_level = "fullyAutomated"
-  ha_enabled = true
+  ha_enabled = false
   force_evacuate_on_destroy = true
 }
 
@@ -195,4 +195,30 @@ datacenter_id = "${data.vsphere_datacenter.old_datacenter.id}"
 count = 5
 }
 
+// ############################# TWORZENIE MASZYN WIRTUALNYCH ###############################
+
+
+resource "vsphere_virtual_machine" "vm" {
+  name             = "VM-${var.company}-${var.environment}-${count.index + 1}"
+  resource_pool_id = "${vsphere_compute_cluster.compute_cluster.resource_pool_id}"
+  datastore_id     = "${vsphere_nas_datastore.nfsdatastore.id}"
+
+  num_cpus = 2
+  memory   = 256
+  guest_id = "other3xLinux64Guest"
+  count = 10
+  
+  wait_for_guest_ip_timeout = 0
+  wait_for_guest_net_timeout = 0
+  
+  network_interface {
+    network_id = "${vsphere_distributed_port_group.pg_mgmt.id}"
+  }
+
+  disk {
+    label = "disk0"
+    size  = 5
+  }
+  depends_on = ["vsphere_nas_datastore.nfsdatastore"]
+}
 
