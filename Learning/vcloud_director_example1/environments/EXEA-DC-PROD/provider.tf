@@ -5,5 +5,5 @@ provider "vcd" {
   vdc                  = "${var.vcd_vdc}"
   url                  = "${var.vcd_url}"
   allow_unverified_ssl = "${var.vcd_allow_unverified_ssl}"
-  max_retry_timeout    = "60"
+  max_retry_timeout    = "300"
 }

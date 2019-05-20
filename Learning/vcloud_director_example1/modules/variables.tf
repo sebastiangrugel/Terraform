@@ -22,3 +22,10 @@ variable "org_edge_gateway" {
   type = "string"
 }
 
+variable "edge1_ex_ip" {
+  type = "string"
+ }
+
+variable "org_edge_default_network_routed" {
+  type = "string"
+}
