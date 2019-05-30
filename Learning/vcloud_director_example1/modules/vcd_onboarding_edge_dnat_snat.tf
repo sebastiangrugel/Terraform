@@ -10,7 +10,6 @@ resource "vcd_dnat" "web" {
 }
 
 
-
 resource "vcd_snat" "outbound" {
   edge_gateway = "${var.org_edge_gateway}"
   external_ip  = "${var.edge1_ex_ip}"
