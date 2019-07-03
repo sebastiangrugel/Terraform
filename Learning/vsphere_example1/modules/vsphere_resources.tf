@@ -5,12 +5,10 @@ data "vsphere_host" "hosts" {
   datacenter_id = "${data.vsphere_datacenter.old_datacenter.id}"
   }
 
-// Pobranie informacji o istniejącym klastrze
+// Pobranie informacji o istniejącym datacenter
 data "vsphere_datacenter" "old_datacenter" {
   name = "${var.company}-DC-${var.environment}"
   }
-
-
 
 // Tworzenie jednego datasotra z 3 znalezionych dysków dla pierwszego ESXi
 data "vsphere_vmfs_disks" "available1" {
@@ -195,18 +193,19 @@ datacenter_id = "${data.vsphere_datacenter.old_datacenter.id}"
 count = 5
 }
 
-// ############################# TWORZENIE MASZYN WIRTUALNYCH ###############################
+// ############################# TWORZENIE PUSTYCH MASZYN WIRTUALNYCH ###############################
 
 
 resource "vsphere_virtual_machine" "vm" {
   name             = "VM-${var.company}-${var.environment}-${count.index + 1}"
-  resource_pool_id = "${vsphere_compute_cluster.compute_cluster.resource_pool_id}"
+  # resource_pool_id = "${vsphere_compute_cluster.compute_cluster.resource_pool_id}" # lokalizacja w klastrze poza resource pool
+  resource_pool_id = "${vsphere_resource_pool.resource_pool_mgmt.id}"
   datastore_id     = "${vsphere_nas_datastore.nfsdatastore.id}"
 
   num_cpus = 2
   memory   = 256
   guest_id = "other3xLinux64Guest"
-  count = 10
+  count = 2
   
   wait_for_guest_ip_timeout = 0
   wait_for_guest_net_timeout = 0
@@ -222,3 +221,67 @@ resource "vsphere_virtual_machine" "vm" {
   depends_on = ["vsphere_nas_datastore.nfsdatastore"]
 }
 
+// ############################# TWORZENIE MASZYN WIRTUALNYCH Z TEMPLATE ###############################
+
+
+data "vsphere_virtual_machine" "template_linux_1" {
+name = "${var.template_linux_centos}"
+datacenter_id = "${data.vsphere_datacenter.old_datacenter.id}"
+}
+
+resource "vsphere_virtual_machine" "vm_template" {
+//count         = "${length(var.hosts)}"
+count = 1
+name             = "VM-template_${var.company}-${var.environment}-${count.index + 1}"
+resource_pool_id = "${vsphere_compute_cluster.compute_cluster.resource_pool_id}"
+datastore_id     = "${vsphere_nas_datastore.nfsdatastore.id}"
+//datacenter_id   = "${data.vsphere_datacenter.old_datacenter.id}"
+
+num_cpus = 2
+memory   = 1024
+guest_id = "${data.vsphere_virtual_machine.template_linux_1.guest_id}"
+
+network_interface {
+    network_id   = "${vsphere_distributed_port_group.pg_mgmt.id}"
+    //adapter_type = "${data.vsphere_virtual_machine.template_linux_1.network_interface_types[0]}"
+    adapter_type = "vmxnet3"
+  }
+
+disk {
+    label = "disk0"
+    size  = "${data.vsphere_virtual_machine.template_linux_1.disks.0.size}"
+  }
+# Additional disk
+  disk {
+    label = "disk1"
+    size  = "5"
+    unit_number = 1
+  }
+
+clone {
+    template_uuid = "${data.vsphere_virtual_machine.template_linux_1.id}"
+
+
+customize {
+      linux_options {
+        host_name = "testName"
+        domain    = "test.domain"
+             }
+
+         network_interface {
+        ipv4_address = "10.3.5.88"
+        ipv4_netmask = 24
+      }     
+      ipv4_gateway = "10.3.5.1"
+      dns_server_list = ["${var.virtual_machines_dns_servers}"]
+      
+    }
+
+
+}
+
+wait_for_guest_ip_timeout = 0
+wait_for_guest_net_timeout = 0
+
+
+}
