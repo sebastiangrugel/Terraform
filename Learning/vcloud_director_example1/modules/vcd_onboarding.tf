@@ -9,3 +9,5 @@ resource "vcd_catalog" "myNewCatalog" {
 }
 
 
+
+
