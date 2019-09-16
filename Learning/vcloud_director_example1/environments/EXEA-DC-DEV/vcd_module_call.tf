@@ -1,5 +1,4 @@
 module "exea_environment" {
-    source = "../../modules"
-    company = "NOKIA2019"
-    liczbakatalogow = "3"
+    source = "../../module-first-test"
+//  source = "../../modules"
 }
