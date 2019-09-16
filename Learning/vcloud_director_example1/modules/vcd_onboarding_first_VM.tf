@@ -23,8 +23,8 @@ depends_on = ["vcd_network_routed.net-terr1"]
   vapp_name     = "${vcd_vapp.firstvm.name}"
   name          = "CentosFirstVM-${count.index + 1}"
   catalog_name  = "Linux"
-  template_name = "TEMP-CentOS-6.7"
-  count = "2"
+  template_name = "TEMP-CentOS-6.10"
+  count = "1"
   power_on = "false"
 
 network {

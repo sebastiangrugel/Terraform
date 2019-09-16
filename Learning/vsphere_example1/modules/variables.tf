@@ -30,6 +30,28 @@ variable "template_linux_centos" {
 variable "virtual_machines_dns_servers" {
   type = "list"
   default = []
+  }
+
+variable "vm_mgt_ip" {
+  type = "string"
+  }
+
+variable "vm_gw" {
+  type = "string"
   
+  }
+
+variable "vm_dns" {
+  type = "list"
+  default = []
 }
+
+variable "hostname" {
+  type = "string"
+  }
+
+variable "host_domain" {
+  type = "string"
+}
+
 

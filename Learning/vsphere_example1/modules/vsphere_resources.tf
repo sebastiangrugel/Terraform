@@ -95,7 +95,7 @@ resource "vsphere_distributed_virtual_switch" "dvs_nsx" {
  resource "vsphere_distributed_port_group" "pg_mgmt" {
   name = "PG-${var.company}-${var.environment}-MGT"
   distributed_virtual_switch_uuid = "${vsphere_distributed_virtual_switch.dvs.id}"
-  vlan_id = 1001
+  vlan_id = 0
   }
  resource "vsphere_distributed_port_group" "pg_backup" {
   name = "PG-${var.company}-${var.environment}-BACKUP"
@@ -223,19 +223,17 @@ resource "vsphere_virtual_machine" "vm" {
 
 // ############################# TWORZENIE MASZYN WIRTUALNYCH Z TEMPLATE ###############################
 
-
+// Zczytanie informacji na temat istniejącego 
 data "vsphere_virtual_machine" "template_linux_1" {
 name = "${var.template_linux_centos}"
 datacenter_id = "${data.vsphere_datacenter.old_datacenter.id}"
 }
 
 resource "vsphere_virtual_machine" "vm_template" {
-//count         = "${length(var.hosts)}"
 count = 1
 name             = "VM-template_${var.company}-${var.environment}-${count.index + 1}"
 resource_pool_id = "${vsphere_compute_cluster.compute_cluster.resource_pool_id}"
 datastore_id     = "${vsphere_nas_datastore.nfsdatastore.id}"
-//datacenter_id   = "${data.vsphere_datacenter.old_datacenter.id}"
 
 num_cpus = 2
 memory   = 1024
@@ -264,24 +262,19 @@ clone {
 
 customize {
       linux_options {
-        host_name = "testName"
-        domain    = "test.domain"
+        host_name = "${var.hostname}"
+        domain    = "${var.host_domain}"
              }
 
          network_interface {
-        ipv4_address = "10.3.5.88"
+        ipv4_address = "${var.vm_mgt_ip}"
         ipv4_netmask = 24
       }     
-      ipv4_gateway = "10.3.5.1"
-      dns_server_list = ["${var.virtual_machines_dns_servers}"]
+      ipv4_gateway = "${var.vm_gw}"
+      dns_server_list = ["${var.vm_dns}"]
       
     }
-
-
 }
-
 wait_for_guest_ip_timeout = 0
 wait_for_guest_net_timeout = 0
-
-
 }
