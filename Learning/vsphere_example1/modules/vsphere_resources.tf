@@ -54,7 +54,7 @@ resource "vsphere_nas_datastore" "nfsdatastore" {
 // Tworzenie klastra hostów
 resource "vsphere_compute_cluster" "compute_cluster" {
   name            = "Terraform${var.company}_Cluster-VMUG_${var.environment}"
-   datacenter_id   = "${data.vsphere_datacenter.old_datacenter.id}"
+  datacenter_id   = "${data.vsphere_datacenter.old_datacenter.id}"
   host_system_ids = ["${data.vsphere_host.hosts.*.id}"]
   drs_enabled          = true
   drs_automation_level = "fullyAutomated"

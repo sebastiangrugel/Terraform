@@ -1,4 +1,5 @@
-resource "vcd_org" "terra-sebastian" {
+#resource "vcd_org" "terra-vcd-org" {
+resource "vcd_org" "terra-org" {
   name             = "terra-Sebastian-Grugel"
   full_name        = "Terraform Sebastian Grugel Full name Organization"
   description      = "Terraform description"
