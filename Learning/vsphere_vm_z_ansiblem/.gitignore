@@ -1,0 +1,6 @@
+terraform.tfvars
+terraform.tfstate
+.terraform
+terraform.tfstate.backup
+vsphere-resources-01.tf.temp
+vsphere_inputs.tf
